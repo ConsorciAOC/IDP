@@ -1,10 +1,30 @@
 # IDP SIID - Manual desenvolupador SP
- 
-# 1 Introducció
+
+## INDEX
+
+- [1. Introducció](#1)
+- [2. Esquema de la solució](#2)
+- [3. Accions preliminars](#3)
+   * [3.1 URLs d&#39;accés](#3.1)
+        * [3.1.1 URLs de Desenvolupament ](#3.1.1)
+		* [3.1.2 URLs de Preproducció](#3.1.2)
+		* [3.1.3 URLs de Producció](#3.1.3)
+-  [4. Components a desenvolupar](#4)
+	* [4.1 Login](#4.1)
+	* [4.2 Post-login](#4.2)
+	* [4.3 Logout](#4.3)
+	* [4.4 Post-Logout](#4.4)
+-  [5. Accions posteriors](#5)
+	* [5.1 Caducitat de les sessions dels SPs](#5.1)
+	* [5.2 Caducitat de les sessions de l&#39;IDP](#5.2)
+-  [6. Errors freqüents en la integració](#6)
+	* [6.1 El sistema demana autenticar-se dos vegades](#6.1)	
+
+# 1 Introducció <a name="1"></a>
 
 L&#39;objectiu del present document és subministrar la informació necessària als desenvolupadors d&#39;aplicacions Web que vulguin incloure la seva aplicació dins el _Single Sign On_ (SSO) d&#39;AOC.
 
-# 2 Esquema de la solució
+# 2 Esquema de la solució <a name="2"></a>
 
 A continuació es mostra un esquema amb els components que intervenen a la solució, així com el paper de cadascun d&#39;ells.
 
@@ -20,7 +40,7 @@ Les accions 4 i 5 de l&#39;esquema són també aplicables per a qualsevol SP. A 
 ² Identity Provider
 
 
-# 3 Accions preliminars
+# 3 Accions preliminars <a name="3"></a>
 
 Abans de començar el desenvolupament, es necessari que el SP tingui accés a un IDP, encarregat de validar les credencials dels usuaris que vulguin accedir a l&#39;aplicació. Això implica, entre altres coses, obtenir la següent informació de l&#39;IDP:
 
@@ -38,9 +58,9 @@ Abans de començar el desenvolupament, es necessari que el SP tingui accés a un
 
 ³ Com la informació bescanviada és sensible, es fa servir el protocol segur http.
 
-## 3.1 URLs d&#39;accés
+## 3.1 URLs d&#39;accés <a name="3.1"></a>
 
-### 3.1.1 URLs de Desenvolupament
+### 3.1.1 URLs de Desenvolupament <a name="3.1.1"></a>
 
 | **Acció** | **Url de l&#39;entorn** |
 | --- | --- |
@@ -49,7 +69,7 @@ Abans de començar el desenvolupament, es necessari que el SP tingui accés a un
 | **Logout** | ```http://idpdev.eacat.cat/SSOLogout.ashx?providerID=<nom del SP>&nextUrl=<url>``` |
 | **Post- Logout** | ```http://idpdev.eacat.cat/SSOLogout.ashx?providerID=<nom del SP>``` |
 
-### 3.1.2.URLs de Preproducció
+### 3.1.2 URLs de Preproducció <a name="3.1.2"></a>
 
 | **Acció** | **Url de l&#39;entorn** |
 | --- | --- |
@@ -58,7 +78,7 @@ Abans de començar el desenvolupament, es necessari que el SP tingui accés a un
 | **Logout** | ```http://idppre.eacat.cat/SSOLogout.ashx?providerID=<nom del SP>&nextUrl=<url>``` |
 | **Post- Logout** | ```http://idppre.eacat.cat/SSOLogout.ashx?providerID=<nom del SP>``` |
 
-### 3.1.3.URLs de Producció
+### 3.1.3 URLs de Producció <a name="3.1.3"></a>
 
 | **Acció** | **Url de l&#39;entorn** |
 | --- | --- |
@@ -67,7 +87,7 @@ Abans de començar el desenvolupament, es necessari que el SP tingui accés a un
 | **Logout** | ```http://idp.eacat.net/SSOLogout.ashx?providerID=<nom del SP>&nextUrl=<url>``` |
 | **Post- Logout** | ```http://idp.eacat.net/SSOLogout.ashx?providerID=<nom del SP>``` |
 
-# 4 Components a desenvolupar
+# 4 Components a desenvolupar <a name="4"></a>
 
 L&#39;objectiu final és el desenvolupament de dos serveis dins el SP:
 
@@ -89,7 +109,7 @@ Cada SP disposa d&#39;un identificador que es fa servir en varies parts del codi
 
 A continuació es detalla el codi a desenvolupar.
 
-## 4.1 Login
+## 4.1 Login <a name="4.1"></a>
 
 **Funcionalitat**
 
@@ -103,7 +123,7 @@ Aquesta classe ha de fer un HTTP _Redirect_ a la següent adreça, per tal d&#39
 
 **\* És molt important mantenir tots els noms que hi ha referenciats a les adreces. Per exemple**  **SSOLogin.ashx**  **s&#39;ha de dir així, ja que és aquesta adreça la que crea l&#39;artifact, mentre que si posem qualsevol altre nom ens crearà una nova sessió i obligarà a autenticar-nos novament.**
 
-## 4.2 Post-login
+## 4.2 Post-login <a name="4.2"></a>
 
 **Funcionalitat**
 
@@ -119,7 +139,7 @@ El contingut del que es llegeixi és el XML amb la informació de l&#39;usuari a
 
 Com ja s&#39;ha indicat, aquest servei del IDP es accessible només via el protocol segur HTTPS, la qual cosa vol dir que quan s&#39;obri el canal, s&#39;ha de considerar el certificat de servidor del IDP com un certificat de confiança. Els detalls concrets depenen del llenguatge de programació emprat i el seu entorn d&#39;execució.
 
-## 4.3 Logout
+## 4.3 Logout <a name="4.3"></a>
 
 **Funcionalitat**
 
@@ -133,7 +153,7 @@ Aquesta classe ha de fer el _logout_ de l&#39;usuari dins l&#39;aplicació, esse
 
 on &quot;nextUrl&quot; és la url de la pàgina que volem mostrar a l&#39;usuari un cop finalitzat el _logout_ global.
 
-## 4.4 Post-Logout
+## 4.4 Post-Logout <a name="4.4"></a>
 
 **Funcionalitat**
 
@@ -147,7 +167,7 @@ El codi a executar no difereix del servei &quot;Logout&quot; explicat anteriorme
 
 on en aquest cas no és necessari enviar el paràmetre &quot;nextUrl&quot;, doncs l&#39;IDP l&#39;ignorarà, emprant el valor enviar pel SP que va iniciar el procés.
 
-# 5 Accions posteriors
+# 5 Accions posteriors <a name="5"></a>
 
 Un cop desenvolupat el codi, el SP ha d&#39;enviar la següent informació a l&#39;IDP per tal de donar-lo d&#39;alta dins el seu _backend_.
 
@@ -242,13 +262,13 @@ Així doncs, que succeeix quan les credencials globals de l&#39;usuari no coinci
 
 Les sessions de les aplicacions Web tenen un determinat temps de vida. Què succeeix quan aquestes caduquen?
 
-## 5.1 Caducitat de les sessions dels SPs
+## 5.1 Caducitat de les sessions dels SPs <a name="5.1"></a>
 
 Imaginem l&#39;escenari on un usuari ha estat identificat a SP1 i la seva sessió ha caducat. Quan l&#39;usuari vol accedir novament a SP1, el sistema determina que l&#39;usuari no està autenticat i inicia el procediment de _login_, fent un _redirect_ cap a l&#39;IDP. Quan l&#39;IDP rep la petició, determina que l&#39;usuari encara està autenticat (la sessió de l&#39;IDP no ha caducat), recupera les seves credencials, torna a cridar al servei de validació i envia el XML cap a SP1. SP1 rep aquest XML i fa el _login_ local.
 
 Tot això vol dir que quan l&#39;usuari accedeix per segon cop a l&#39;aplicació, es torna a autenticar de manera transparent, sense adonar-se. En realitat l&#39;usuari si que veurà que alguna cosa ha canviat doncs, al tractar-se d&#39;una nova sessió, comença &quot;des de zero&quot;. Es responsabilitat de l&#39;aplicació el fer aquesta transició d&#39;una manera correcta.
 
-## 5.2 Caducitat de les sessions de l&#39;IDP
+## 5.2 Caducitat de les sessions de l&#39;IDP <a name="5.2"></a>
 
 Imaginem l&#39;escenari on un usuari ha estat identificat a SP1. Un cop ha passat molt de temps (més que el temps de vida de les sessions de l&#39;IDP), l&#39;usuari accedeix a SP2. En aquest cas, quan l&#39;IDP rep la petició de _login_ per part de SP2, considera que l&#39;usuari no està autenticat (doncs la sessió de l&#39;IDP on s&#39;emmagatzema aquesta informació ha estat destruïda) i li demana les credencials, on la situació normal seria que no li demanés.
 
@@ -1588,11 +1608,11 @@ El problema de la segona solució es que aquest _token_ s&#39;hauria de passar e
 ```
 
 
-# 6 Errors freqüents en la integració
+# 6 Errors freqüents en la integració <a name="6"></a>
 
 Un cop implementades un bon número d&#39;integracions, tractem d&#39;enumerar els problemes típics amb que s&#39;han anat trobant els diferents proveïdors:
 
-## 6.1 El sistema demana autenticar-se dos vegades
+## 6.1 El sistema demana autenticar-se dos vegades <a name="6.1"></a>
 
 Normalment aquest error ve donat per un canvi en les adreces de Login, Post-login, Logout o Post-Logout. És molt important mantenir el nom de les URLs que s&#39;indiquen al manual, ja que aquestes són les que creen les sessions o artifacts que d&#39;una altra forma ens serà possible establir.
 
