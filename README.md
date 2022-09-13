@@ -46,11 +46,11 @@ Abans de començar el desenvolupament, es necessari que el SP tingui accés a un
 
 - Punt d&#39;entrada <br>Un usuari que encara no hagi iniciat una sessió a cap SP haurà d&#39;iniciar la sessió sempre des del mateix punt: EACAT
 
-- Adreça del servei de _login_<br>Aquest es el servei encarregat de rebre les peticions de _login__local_ per part dels SPs. L&#39;adreça és la següent: http://>idp\&gt;/SSOLogin.ashx(on \&lt;idp\&gt; és l&#39;adreça de l&#39;IDP de l&#39;entorn EACAT que correspongui)
+- Adreça del servei de _login_<br>Aquest es el servei encarregat de rebre les peticions de _login__local_ per part dels SPs. L&#39;adreça és la següent: http://\<idp>/SSOLogin.ashx(on \<idp> és l&#39;adreça de l&#39;IDP de l&#39;entorn EACAT que correspongui)
 
-- Adreça del servei de _logout_<br>Aquest es el servei encarregat de rebre les peticions de _logout_ part dels SPs. L&#39;adreça és la següent: http://\&lt;idp\&gt;/SSOLogout.ashx
+- Adreça del servei de _logout_<br>Aquest es el servei encarregat de rebre les peticions de _logout_ part dels SPs. L&#39;adreça és la següent: http://\<idp>/SSOLogout.ashx
 
-- Adreça del servei de resolució d&#39;_artifacts_<br>Un cop autenticat l&#39;usuari, aquest servei és l&#39;encarregat d&#39;enviar de manera segura al SP el XML amb la informació de l&#39;usuari. L&#39;adreça és la següent: https://\&lt;idp\&gt;/ArtifactResolutionService.aspx ³.
+- Adreça del servei de resolució d&#39;_artifacts_<br>Un cop autenticat l&#39;usuari, aquest servei és l&#39;encarregat d&#39;enviar de manera segura al SP el XML amb la informació de l&#39;usuari. L&#39;adreça és la següent: https://\<idp>/ArtifactResolutionService.aspx ³.
 
 - Esquema XML de l&#39;usuari.<br>Un cop l&#39;usuari ha estat correctament autenticat, l&#39;IDP envia un XML ambla informació de l&#39;usuari. L&#39;esquema d&#39;aquest XML pot dependre de cada SP i és AOC l&#39;encarregat de subministrar-lo.
 
@@ -73,7 +73,7 @@ Abans de començar el desenvolupament, es necessari que el SP tingui accés a un
 
 | **Acció** | **Url de l&#39;entorn** |
 | --- | --- |
-| **Login** | ```http://idpdev.eacat.cat/SSOLogin.ashx?providerID=<nom del SP>``` |
+| **Login** | ```http://idppre.eacat.cat/SSOLogin.ashx?providerID=<nom del SP>``` |
 | **Post-Login** | ```https://idppre.eacat.cat/ArtifactResolutionService.aspx?artifactId=<valor d’artifactId>```|
 | **Logout** | ```http://idppre.eacat.cat/SSOLogout.ashx?providerID=<nom del SP>&nextUrl=<url>``` |
 | **Post- Logout** | ```http://idppre.eacat.cat/SSOLogout.ashx?providerID=<nom del SP>``` |
@@ -186,11 +186,11 @@ A continuació es procedirà amb una descripció detallada dels processos de _lo
 | **Usuari** | **SP1** | **EACAT** | **IDP** |
 | --- | --- | --- | --- |
 | Usuari introdueix al navegador l&#39;adreça de SP1. | | | |
-| | SP1 rep la petició i determina que l&#39;usuari no està _logat (login local)_. SP1 construeix una URL de petició de login de l&#39;IDP (http://\&lt;idp\&gt;/SSOLogin.ashx?providerID=SP1)SP1 respon a l&#39;usuari amb un redirect a aquesta URL. |
+| | SP1 rep la petició i determina que l&#39;usuari no està _logat (login local)_. SP1 construeix una URL de petició de login de l&#39;IDP (http://\<idp>/SSOLogin.ashx?providerID=SP1)SP1 respon a l&#39;usuari amb un redirect a aquesta URL. |
 | L&#39;usuari rep aquesta URL i l&#39;envia cap a l&#39;IDP | | | |
  | | | | IDP rep la petició i determina que l&#39;usuari **no ha estat identificat** (login global) i el redirecciona cap a EACAT (part pública) |
 | L&#39;usuari accedeix a la part privada d&#39;EACAT | | | |
-| |  | EACAT determina que l&#39;usuari no està _logat_. Construeix una URL de petició de _login_ a l&#39;IDP (http://\&lt;idp\&gt;/SSOLogin.ashx?providerID=EACAT)EACAT respon a l&#39;usuari amb un _redirect_ a aquesta URL. |
+| |  | EACAT determina que l&#39;usuari no està _logat_. Construeix una URL de petició de _login_ a l&#39;IDP (http://\<idp>/SSOLogin.ashx?providerID=EACAT)EACAT respon a l&#39;usuari amb un _redirect_ a aquesta URL. |
 | L&#39;usuari rep aquesta URL i l&#39;envia cap a l&#39;IDP | | | |
  | | |  | IDP rep la petició i determina que l&#39;usuari no ha estat identificat (_login global_). Demana les seves credencials (usuari/pwd o certificat), les valida contra el WS d&#39;autenticació i obté un XML de resposta. IDP construeix una URL de resposta a EACAT on s&#39;envia un _token_ que associarà internament al XML de resposta.IDP respon a l&#39;usuari amb un _redirect_ a aquesta URL. |
 | L&#39;usuari rep aquesta URL i l&#39;envia cap a EACAT. | | | |
@@ -245,9 +245,10 @@ A continuació s&#39;analitzarà amb detall el procés de _login_ amb vàries in
 | L&#39;usuari rep aquesta URL i la envia cap a SP. | | | |
 | | Com que la petició ve de la mateixa sessió de navegador, assigna la mateixa instància: **SPa**.Aquest és el punt clau de tota la solució: com l&#39;accés al SP es fa via  **redirects**, el balancejador assigna la **mateixa instància**. |
 
-A partir d&#39;aquest punt, tot continua com sempre: SPa rep la petició, demana el XML a l&#39;IDP, fa el _login_ local,... EL mateix esquema es podria fer pel _logout_: com es fa _redirect_, la petició de _logout_ arribarà a la instància que va el _login_.
+A partir d&#39;aquest punt, tot continua com sempre: SPa rep la petició, demana el XML a l&#39;IDP, fa el _login_ local, etc. El mateix esquema es podria fer pel _logout_: com es fa _redirect_, la petició de _logout_ arribarà a la instància que va al _login_.
 
 ⁸ Altres escenaris són possibles, com ara sistemes en cluster amb sessió distribuïda. En aquest cas es evident, pel fet de que la sessió sigui compartida per totes les instàncies, que no existiran problemes.
+
 ⁹ En realitat, que vinguin de la mateixa sessió del navegador.
 
 # Annex C – Equivalència de credencials
@@ -281,7 +282,7 @@ El problema de la segona solució es que aquest _token_ s&#39;hauria de passar e
 
 # Annex E – Exemple XML d&#39;usuari
 
-```
+```xml
 <InfoUsu Col="MLO" Id="12345678Z" DefaultEns="829170005" Nom="Usuari Proves MUX Vacarisses " eMail="12345678Z@csiprep.intranet" TeMailbox="1">
 	<InfoUsuEns IdEns="1" CIF="S0811001G" Signatura="1" Poblacio="Barcelona" OfReg="9000" DescOfReg="Generalitat de Catalunya" EnsNomCurt="Generalitat de Catalunya" EnsNomLlarg="Generalitat de Catalunya" EnsCodiTipus="99" CIFsSignatura="#S0811001G#" UO="Generalitat de Catalunya" IdUO="1" IdMunicipi="801930008" IdComarca="8101360009" IdProvincia="8000840003" CodiDelegacio="1" NomMunicipi="Barcelona" NomComarca="Barcelonès" NomProvincia="Barcelona" NomDelegacio="Barcelona" NomAlternatiu="La Gene" CodiUO="99999999" Logo="gencat.gif">
 		<Rol IdServei="#PORTAL#" IdRol="#AUTENT#" Signat="0" />
